@@ -13,15 +13,6 @@ table.wonder .sortcol {
 	background-position: right center;
 }
 
-table.wonder .asc {
-	background-color: #DDFFAC;
-	background-image: url(/images/icons/grid/up.gif);
-}
-
-table.wonder .desc {
-	background-color: #B9DDFF;
-	background-image: url(/images/icons/grid/down.gif);
-}
 
 table.wonder .nosort {
 	cursor: default;
@@ -75,12 +66,12 @@ table.wonder .sorted {
 
 table.wonder .asc {
 	background-color: #DDFFAC;
-	background-image: url(/images/up.gif);
+	background-image: url(/images/icons/wt-up.gif);
 }
 
 table.wonder .desc {
 	background-color: #B9DDFF;
-	background-image: url(/images/down.gif);
+	background-image: url(/images/icons/wt-down.gif);
 }
 
 table.wonder .nosort {
