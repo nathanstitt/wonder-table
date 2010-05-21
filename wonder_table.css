@@ -1,0 +1,185 @@
+table.wonder tr.odd {
+	background-color: #FFF;
+}
+
+table.wonder  tr.even {
+	background-color: #F2F2F2;
+}
+
+table.wonder .sortcol {
+	cursor: pointer;
+	padding-right: 20px;
+	background-repeat: no-repeat;
+	background-position: right center;
+}
+
+table.wonder .sortasc {
+	background-color: #DDFFAC;
+	background-image: url(/images/icons/grid/up.gif);
+}
+
+table.wonder .sortdesc {
+	background-color: #B9DDFF;
+	background-image: url(/images/icons/grid/down.gif);
+}
+
+table.wonder .nosort {
+	cursor: default;
+}
+
+table.wonder th.resize-handle-active {
+	cursor: e-resize;
+}
+
+div.resize-handle {
+	cursor: e-resize;
+	width: 2px;
+	border-right: 1px dashed #1E90FF;
+	position:absolute;
+	top:0;
+	left:0;
+}
+
+
+table.wonder tr.selected {
+	background-color: #EBC2C0;
+}
+
+
+table.wonder tr.deleted td {
+    text-decoration: line-through;
+}
+
+
+table.wonder #cleared {
+    font-size:70%;
+    line-height:0.4em;
+    padding: 0px 5px 5px 2px;
+    text-align:center;
+}
+
+table.wonder tr.rowodd {
+	background-color: #FFF;
+}
+
+table.wonder tr.roweven {
+	background-color: #F2F2F2;
+}
+
+table.wonder .sortcol {
+	cursor: pointer;
+	padding-right: 20px;
+	background-repeat: no-repeat;
+	background-position: right center;
+}
+
+table.wonder .sortasc {
+	background-color: #DDFFAC;
+	background-image: url(/images/icons/grid/up.gif);
+}
+
+table.wonder .sortdesc {
+	background-color: #B9DDFF;
+	background-image: url(/images/icons/grid/down.gif);
+}
+
+table.wonder .nosort {
+	cursor: default;
+}
+
+table.wonder th.resize-handle-active {
+	cursor: e-resize;
+}
+
+div.resize-handle {
+	cursor: e-resize;
+	width: 2px;
+	border-right: 1px dashed #1E90FF;
+	position:absolute;
+	top:0;
+	left:0;
+}
+
+
+table.wonder tr.selected {
+	background-color: #EBC2C0;
+}
+
+
+table.wonder tr.deleted td {
+    text-decoration: line-through;
+}
+
+
+table.wonder #cleared {
+    font-size:70%;
+    line-height:0.4em;
+    padding: 0px 5px 5px 2px;
+    text-align: seperate;
+}
+
+
+/* datTable for styling only */
+table.wonder {
+    border-collapse: separate;
+    margin: 0;
+    padding: 0;
+    border-bottom: 1px solid #999;
+    border-left: 1px solid #999;
+}
+
+table.wonder th {
+    margin: 0;
+    border-right: 1px solid #999;
+    border-top: 1px solid #999;
+    font-weight: normal;
+    padding: 4px 3px 3px 4px;
+    background: #D9E9EF;
+    font-weight: bold;
+}
+
+table.wonder td {
+    margin: 0;
+    border-right: 1px solid #999;
+    border-top: 1px solid #999;	
+    padding: 2px 3px 3px 4px
+}
+
+/* This makes the scrolling table work */
+
+div.wonder-container {
+    height: 335px;	
+    overflow: auto;
+    width: 970px;
+    margin: 0px;
+    position: relative;
+}
+
+/* The different widths below are due to the way the scroll bar is implamented
+we are keeping these here instead of putting them in the IE css file b/c it 
+is easier to change the width if both numbers are in the same place. */
+
+/* All browsers accept this, but we are targeting IE with this rule */
+div.wonder-container table {
+	width: 952px;
+}
+
+/* Modern browsers accept this (not IE) and we are targetting firefox */
+html>/**/body div.wonder-container table {
+    width: 970px;
+}
+
+/* Modern browsers accept this (not IE) and we are targetting firefox */
+html>/**/body div.wonder-container table>tbody	{  
+    overflow: auto; 
+    height: 250px;
+    overflow-x: hidden;
+}
+
+div.wonder-container thead tr	{
+	position:relative;
+}
+
+/*prevent Mozilla scrollbar from hiding cell content*/
+div.wonder-container td:last-child {padding-right: 20px;}
+
