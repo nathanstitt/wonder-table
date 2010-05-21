@@ -18,19 +18,6 @@ table.wonder .nosort {
 	cursor: default;
 }
 
-table.wonder th.resize-handle-active {
-	cursor: e-resize;
-}
-
-div.resize-handle {
-	cursor: e-resize;
-	width: 2px;
-	border-right: 1px dashed #1E90FF;
-	position:absolute;
-	top:0;
-	left:0;
-}
-
 
 table.wonder tr.selected {
 	background-color: #EBC2C0;
@@ -49,13 +36,6 @@ table.wonder #cleared {
     text-align:center;
 }
 
-table.wonder tr.rowodd {
-	background-color: #FFF;
-}
-
-table.wonder tr.roweven {
-	background-color: #F2F2F2;
-}
 
 table.wonder .sorted {
 	cursor: pointer;

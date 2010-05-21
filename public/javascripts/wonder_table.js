@@ -40,6 +40,10 @@ WonderTable = Class.create(
 	}
     },
 
+    clear:function(){
+	this.body.update();
+    },
+
     sortByColumn:function( index, up_down ){
 	if ( this.options.get('no_sort').include( index ) ){
 	    return;
@@ -48,7 +52,7 @@ WonderTable = Class.create(
 	    this.sorted_by.removeClassName( 'sorted').removeClassName('asc').removeClassName('desc');
 	}
 	var rows = $A(this.body.rows);
-	var new_sort = this.head_row.down('th.col-'+index );
+	var new_sort = this.head_row.cells[ index ];
 
 	if ( this.sorted_by === new_sort ){
 	    rows.reverse();
@@ -69,7 +73,6 @@ WonderTable = Class.create(
 
 	new_sort.addClassName('sorted ' + ( up_down ? 'asc' : 'desc' ) );
 	this.sorted_by = new_sort;
-
     },
 
     requestRows:function(){
@@ -125,11 +128,19 @@ WonderTable = Class.create(
 	}
     },
 
+    setCellRenderer: function( index, func ){
+	this.renders[index] = func;
+    },
+
+    defaultCellRender: function(txt){
+	return txt;
+    },
+
     htmlForRow:function( row ){
 	var html = [];
 	for ( var x = 0; x < this.num_columns; ++x ){
 	    html.push( '<td class="col-'+x+'">' );
-	    html.push( row[x] );
+	    html.push( ( this.renders[x] || this.defaultCellRender )( row[x] ) );
 	    html.push( '</td>' );
 	}
 	return html.join('');
@@ -167,9 +178,8 @@ WonderTable = Class.create(
     },
 
     setRows:function( rows ){
-	this.body.update();
+	this.clear();
 	this.appendRows( rows );
-
     },
 
     setHeight:function(){
@@ -391,12 +401,13 @@ WonderTable.addColumnSorter(
 			return result;
 		}}),
     new WonderTable.SortType('number', {
-		pattern : /^[-+]?[\d]*\.?[\d]+(?:[eE][-+]?[\d]+)?/,
-		normal : function(v) {
-			// This will grab the first thing that looks like a number from a string, so you can use it to order a column of various srings containing numbers.
-			v = parseFloat(v.replace(/^.*?([-+]?[\d]*\.?[\d]+(?:[eE][-+]?[\d]+)?).*$/,"$1"));
-			return isNaN(v) ? 0 : v;
-		}}),
+	    pattern : /^[-+]?[\d|,]*\.?[\d]+(?:[eE][-+]?[\d]+)?/,
+	    normal : function(v) {
+		// This will grab the first thing that looks like a number from a string,
+		// so you can use it to order a column of various srings containing numbers.
+		v = parseFloat( v.replace(/^.*?([-+]?[\d|,]*\.?[\d]+(?:[eE][-+]?[\d]+)?).*$/,"$1").replace(',','') );
+		return isNaN(v) ? 0 : v;
+	    }}),
 	new WonderTable.SortType('casesensitivetext',{pattern : /^[A-Z]+$/}),
 
 	new WonderTable.SortType('text',{
