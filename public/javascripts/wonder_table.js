@@ -3,9 +3,12 @@ WonderTable = Class.create(
 
     initialize: function(el, options ){
 	this.options = $H({
-			      'sort': true,
-			      'no_sort': []
+	    'sort': true,
+	    'id_column': 0,
+	    'no_sort': []
 	}).merge( options );
+	this.id_column = this.options.get('id_column');
+	this.rows = new Hash();
 	this.render=[];
 	this.parameters = $H( this.options.get('parameters') );
 	this.container = new Element('div',{'class':'wonder-container'} );
@@ -90,12 +93,23 @@ WonderTable = Class.create(
     numColumns: function(){
 	return this.num_columns;
     },
+
+    updateRow: function( rowIndex, data ){
+	var row = $( this.body.rows[ rowIndex ] );
+	row.update( htmlForRow( data ) );
+    },
+
+    prependRow: function(){
+	var row=this.body.insertRow( 0 );
+    },
+
     numRows: function(){
 	return this.body.rows.length;
     },
 
     removeRow:function( row ){
 	row.remove();
+	this.setHeight();
     },
 
     defaultRender:function( val, rows, row_num ){
@@ -146,11 +160,16 @@ WonderTable = Class.create(
 	return html.join('');
     },
 
+    getRowData: function( id ){
+	return this.rows.get( id );
+    },
+
     appendRows:function(rows){
 	var html = [ this.body.innerHTML ];
 	var len = rows.length;
 	for ( var y = 0; y < len; y++ ) {
-	    html.push( '<tr>' );
+	    this.rows.set( rows[y][ this.id_column ], rows[y] );
+	    html.push( '<tr recid="' + rows[y][ this.id_column ] + '">' );
 	    html.push( this.htmlForRow( rows[y] ) );
 	    html.push('</tr>');
 	}
@@ -158,6 +177,7 @@ WonderTable = Class.create(
 	this.setHeight();
 	this.stripeRows();
     },
+
     stripeRows:function(){
 	for ( i = 0; i<this.numRows(); i++ ){
 	    var r = this.body.rows[i];
@@ -178,6 +198,7 @@ WonderTable = Class.create(
     },
 
     setRows:function( rows ){
+	this.rows = new Hash();
 	this.clear();
 	this.appendRows( rows );
     },
@@ -187,7 +208,6 @@ WonderTable = Class.create(
 	this.body.setStyle({ 'height': height +'px' } );
 	this.container.setStyle({'height': (height+35) + 'px'});
     },
-
 
     layout: function(){
 	this.table.setStyle({'width': ( this.container.getWidth()-35 ) + 'px' } );
