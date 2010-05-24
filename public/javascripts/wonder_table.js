@@ -96,11 +96,13 @@ WonderTable = Class.create(
 
     updateRow: function( rowIndex, data ){
 	var row = $( this.body.rows[ rowIndex ] );
-	row.update( htmlForRow( data ) );
+	row.update( this.htmlForRow( data ) );
+	this.rows.set( data[ this.id_column ], data );
+	return row;
     },
 
     prependRow: function(){
-	var row=this.body.insertRow( 0 );
+	return $( this.body.insertRow( 0 ) );
     },
 
     numRows: function(){
