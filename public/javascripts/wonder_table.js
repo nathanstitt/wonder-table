@@ -9,7 +9,7 @@ WonderTable = Class.create(
 	}).merge( options );
 	this.id_column = this.options.get('id_column');
 	this.rows = new Hash();
-	this.render=[];
+	this.celldrawers=[];
 	this.parameters = $H( this.options.get('parameters') );
 	this.container = new Element('div',{'class':'wonder-container'} );
 	$(el).insert(this.container);
@@ -32,9 +32,6 @@ WonderTable = Class.create(
 	if ( ( header = this.options.get('header') ) ){
 	    this.setHeader( header );
 	}
-	if ( this.options.get('url') ){
-	    this.requestRows();
-	}
 
 	if ( this.options.get('sort') ){
 	    this.head_row.on('click', 'th', function(ev){
@@ -45,6 +42,11 @@ WonderTable = Class.create(
 
     clear:function(){
 	this.body.update();
+    },
+
+    reload: function(){
+ 	this.clear();
+ 	this.requestRows();
     },
 
     sortByColumn:function( index, up_down ){
@@ -84,7 +86,9 @@ WonderTable = Class.create(
 	    method: 'get',
 	    contentType: 'application/json;',
 	    onSuccess: function(resp){
-		this.appendRows( resp.responseJSON.rows );
+		if ( resp.responseJSON && ! this.container.fire( 'WonderTable:loadedData', resp.responseJSON ).stopped ){
+		    this.appendRows( resp.responseJSON.rows );
+		}
 	    }.bind(this),
 	    onComplete: this.container.fire.bind( this.container, 'WonderTable:loadComplete' )
 	});
@@ -96,7 +100,7 @@ WonderTable = Class.create(
 
     updateRow: function( rowIndex, data ){
 	var row = $( this.body.rows[ rowIndex ] );
-	row.update( htmlForRow( data ) );
+	row.update( this.htmlForRow( data ) );
     },
 
     prependRow: function(){
@@ -109,16 +113,9 @@ WonderTable = Class.create(
 
     removeRow:function( row ){
 	row.remove();
-	this.setHeight();
+	this.afterUpdate();
     },
 
-    defaultRender:function( val, rows, row_num ){
-	return val;
-    },
-
-    setColumnRenderer: function( col_index, func ){
-	this.render[ col_index ] = func;
-    },
 
     setHeader: function( cols ){
 	this.num_columns = cols.length;
@@ -142,11 +139,11 @@ WonderTable = Class.create(
 	}
     },
 
-    setCellRenderer: function( index, func ){
-	this.renders[index] = func;
+    setCellDrawer: function( index, func ){
+	this.celldrawers[index] = func;
     },
 
-    defaultCellRender: function(txt){
+    defaultCellDrawer: function(txt){
 	return txt;
     },
 
@@ -154,7 +151,7 @@ WonderTable = Class.create(
 	var html = [];
 	for ( var x = 0; x < this.num_columns; ++x ){
 	    html.push( '<td class="col-'+x+'">' );
-	    html.push( ( this.renders[x] || this.defaultCellRender )( row[x] ) );
+	    html.push( ( this.celldrawers[x] || this.defaultCellDrawer )( row[x], row ) );
 	    html.push( '</td>' );
 	}
 	return html.join('');
@@ -174,7 +171,7 @@ WonderTable = Class.create(
 	    html.push('</tr>');
 	}
 	this.body.innerHTML = html.join('');
-	this.setHeight();
+	this.afterUpdate();
 	this.stripeRows();
     },
 
@@ -203,7 +200,7 @@ WonderTable = Class.create(
 	this.appendRows( rows );
     },
 
-    setHeight:function(){
+    afterUpdate:function(){
 	var height = ( this.numRows() <= 10 ) ? ( this.body.rows.length * 30 ) : 300;
 	this.body.setStyle({ 'height': height +'px' } );
 	this.container.setStyle({'height': (height+35) + 'px'});
