@@ -24,10 +24,33 @@ WonderTable = Class.create(
 	this.table.insert( this.body );
 	this.container.insert( this.table );
 	this.body.observe('scroll', function(ev){
-	    if ( this.scrollBottom() < -20 ){
-		ev.target.fire('WonderTable:nearingBottom', { 'remaining' : Math.abs( this.scrollBottom() ) } );
+	    if ( ( this.scrollBottom() / this.body.scrollHeight ) < 0.10 ){
+		if ( ! ev.target.fire('WonderTable:nearingBottom', { 'remaining' :  this.scrollBottom()  } ).stopped
+	    	     && this.options.get('url')
+		     && ! this.done_loading ){
+		    this.requestAdditionalRows();
+		}
 	    }
 	}.bind(this) );
+
+	this.body.on('click', 'td', function(ev){
+			 var tr = ev.target.up('tr');
+			 if ( this.selected ){
+				 if ( tr.fire('WonderTable:unselected', { row: this.selected, data: this.getRowData( this.selected )  } ).stopped ){
+				     return;
+				  }
+				  this.selected.removeClassName('selected');
+				  if ( this.selected == tr ){
+				      this.selected = null;
+				      return;
+				  }
+				  this.selected = null;
+			     }
+			 if ( ! tr.fire('WonderTable:selected', { row: tr, data:this.getRowData(tr)  } ).stopped ){
+			     this.selected = tr;
+			     this.selected.addClassName('selected');
+			 }
+	    }.bind(this) );
 
 	if ( ( header = this.options.get('header') ) ){
 	    this.setHeader( header );
@@ -80,6 +103,13 @@ WonderTable = Class.create(
 	this.sorted_by = new_sort;
     },
 
+    requestAdditionalRows:function(){
+	this.parameters = this.parameters.merge({
+			      'offset': this.numRows()
+			      });
+	this.requestRows();
+    },
+
     requestRows:function(){
 	new Ajax.Request( this.options.get('url'),{
 	    parameters: this.parameters,
@@ -87,7 +117,11 @@ WonderTable = Class.create(
 	    contentType: 'application/json;',
 	    onSuccess: function(resp){
 		if ( resp.responseJSON && ! this.container.fire( 'WonderTable:loadedData', resp.responseJSON ).stopped ){
-		    this.appendRows( resp.responseJSON.rows );
+		    if ( resp.responseJSON.rows.length ){
+			this.appendRows( resp.responseJSON.rows );
+		    } else {
+			this.done_loading = true;
+		    }
 		}
 	    }.bind(this),
 	    onComplete: this.container.fire.bind( this.container, 'WonderTable:loadComplete' )
@@ -158,7 +192,11 @@ WonderTable = Class.create(
 	return html.join('');
     },
 
-    getRowData: function( id ){
+    getRowData:function(tr){
+	return this.getData( tr.cells[ this.id_column ].readAttribute('recid') );
+    },
+
+    getData: function( id ){
 	return this.rows.get( id );
     },
 
@@ -174,6 +212,7 @@ WonderTable = Class.create(
 	this.body.innerHTML = html.join('');
 	this.afterUpdate();
 	this.stripeRows();
+	this.body.fire('WonderTable:insertedRows',{'table':this});
     },
 
     stripeRows:function(){
@@ -213,7 +252,7 @@ WonderTable = Class.create(
     },
 
     scrollBottom: function(){
-	return this.body.getHeight() - ( this.body.scrollHeight - this.body.scrollTop );
+	return -1 * ( this.body.getHeight() - ( this.body.scrollHeight - this.body.scrollTop ) );
     },
 
     setColumnSorter: function(index,func){

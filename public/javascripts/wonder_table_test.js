@@ -6,7 +6,7 @@ Test = {
 
 	this.log = $('test-logs');
 	jsUnity.log = function (s) {
-	    this.log.insert({'bottom': '<li>' + s + '</li>' } );
+	    this.log.insert({'top': '<li>' + s + '</li>' } );
 	}.bind(this);
 	this.container = $('test-table');
 
@@ -14,14 +14,26 @@ Test = {
 					  'header': $w('BADCOLUMN_NAME Complete Due Description FooNoShow'),
 					  'url': '/data.json',
 					  'parameters': {
-					      'limit': 30
+					      'limit': 500
 					  }
-				     });
-	this.container.observe('WonderTable:loadComplete', function(){
-				   jsUnity.run( this.testHeader, this.testSorting );
+				      });
+
+	jsUnity.run( this.testHeader );
+	this.table.requestRows();
+	this.container.observe('WonderTable:insertedRows', function(){
+				    	jsUnity.run( this.testSorting );
 			       }.bind(this));
 
+	this.container.observe('WonderTable:nearingBottom', function(ev){
+				   jsUnity.log('near bottom, ' + ev.memo.remaining + ' remains');
+			       }.bind(this));
 
+	this.container.observe('WonderTable:selected', function(ev){
+				   jsUnity.log( "Row " + ev.memo.row.rowIndex + " selected");
+			       }.bind(this));
+	this.container.observe('WonderTable:unselected', function(ev){
+				   jsUnity.log( "Row " + ev.memo.row.rowIndex + " unselected");
+			       }.bind(this));
     },
 
     testHeader: {
@@ -68,14 +80,6 @@ Test = {
 		assertTrue( getLCc(0,col_index) > getLCc( Test.table.numRows()-1,col_index),
 			    '"' + getLCc(0,col_index) + '" > "' + getLCc( Test.table.numRows()-1,col_index) + '"' );
 	    }
-	},
-	testLoading: function(){
-	    assertEqual( 30, Test.table.numRows() );
-	    // Test.table.parameters.set('limit',300 );
-	    // Test.table.requestRows();
-	    // Test.container.observe('WonderTable:loadComplete', function(){
-	    // 	assertEqual( 330, Test.table.numRows() );
-	    // });
 	}
     }
 };
