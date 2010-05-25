@@ -104,13 +104,14 @@ WonderTable = Class.create(
     },
 
     requestAdditionalRows:function(){
-	this.parameters = this.parameters.merge({
-			      'offset': this.numRows()
-			      });
 	this.requestRows();
     },
 
     requestRows:function(){
+	this.parameters = $H(this.parameters).merge({
+	    'offset': this.numRows(),
+	    'limit': this.options.get('limit')
+	});
 	new Ajax.Request( this.options.get('url'),{
 	    parameters: this.parameters,
 	    method: 'get',
@@ -200,12 +201,18 @@ WonderTable = Class.create(
 	return this.rows.get( id );
     },
 
+    rowAttributes:function(row){
+	return 'recid="' + row[ this.id_column ] + '"';
+    },
+
     appendRows:function(rows){
 	var html = [ this.body.innerHTML ];
 	var len = rows.length;
 	for ( var y = 0; y < len; y++ ) {
 	    this.rows.set( rows[y][ this.id_column ], rows[y] );
-	    html.push( '<tr recid="' + rows[y][ this.id_column ] + '">' );
+	    html.push( '<tr ' );
+	    html.push( this.rowAttributes( rows[y] ) );
+	    html.push( '>' );
 	    html.push( this.htmlForRow( rows[y] ) );
 	    html.push('</tr>');
 	}
