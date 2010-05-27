@@ -45,23 +45,20 @@ WonderTable = Class.create(
 	}.bind(this) );
 
 	this.body.on('click', 'td', function(ev){
-			 var tr = ev.target.up('tr');
-			 if ( this.selected ){
-				 if ( tr.fire('wonder-table:unselected', { row: this.selected, data: this.getRowData( this.selected )  } ).stopped ){
-				     return;
-				  }
-				  this.selected.removeClassName('selected');
-				  if ( this.selected == tr ){
-				      this.selected = null;
-				      return;
-				  }
-				  this.selected = null;
-			     }
-			 if ( ! tr.fire('wonder-table:selected', { row: tr, data:this.getRowData(tr)  } ).stopped ){
-			     this.selected = tr;
-			     this.selected.addClassName('selected');
-			 }
-	    }.bind(this) );
+	    var tr = ev.target.up('tr');
+	    if ( this.selected ){
+		if ( tr == this.selected ){
+		    this.unSelect();
+		    return;
+		} else if ( ! this.unSelect() ){
+		    return;
+		}
+	    }
+	    if ( ! tr.fire('wonder-table:selected', { row: tr, data:this.getRowData(tr)  } ).stopped ){
+		this.selected = tr;
+		this.selected.addClassName('selected');
+	    }
+	}.bind(this) );
 
 	if ( ( header = this.options.get('header') ) ){
 	    this.setHeader( header );
@@ -72,6 +69,17 @@ WonderTable = Class.create(
 		this.sortByColumn( ev.target.cellIndex, ! ev.target.hasClassName('asc') );
 	    }.bind(this) );
 	}
+    },
+    unSelect:function(){
+	if ( ! this.selected ){
+	    return false;
+	}
+	if ( this.selected.fire('wonder-table:unselected', { row: this.selected, data: this.getRowData( this.selected )  } ).stopped ){
+	    return false;
+	}
+	this.selected.removeClassName('selected');
+	this.selected = null;
+	return true;
     },
 
     clear:function(){
@@ -131,6 +139,7 @@ WonderTable = Class.create(
 	this.loading = true;
 	return true;
     },
+
     setDoneLoading: function(){
 	this.loading=false;
 	if ( this.spinner ){
@@ -145,27 +154,26 @@ WonderTable = Class.create(
 	}
 	if ( ( limit = this.options.get('limit') ) ){
 	    this.parameters = $H(this.parameters).merge({
-							    'offset': this.numRows(),
-							    'limit': limit
-							});
+		    'offset': this.numRows(),
+		    'limit': limit
+	    });
 	}
-
 	new Ajax.Request( this.options.get('url'),{
 	    parameters: this.parameters,
 	    method: 'get',
 	    contentType: 'application/json;',
-	    onSuccess: function(resp){
-		if ( resp.responseJSON ){
-		    if ( resp.responseJSON.rows.length ){
-			this.appendRows( resp.responseJSON.rows );
-		    } else {
-			this.all_loaded=true;
-		    }
-		    this.setDoneLoading();
-		}
-	    }.bind(this),
-	    onFailure: this.setDoneLoading.bind(this)
+	    onSuccess: this.appendResponse.bind(this),
+	    onComplete: this.setDoneLoading.bind(this)
 	});
+    },
+
+    appendResponse:function(resp){
+	if ( resp.responseJSON && resp.responseJSON.rows && resp.responseJSON.rows.length ){
+	    this.appendRows( resp.responseJSON.rows );
+	} else {
+	    this.all_loaded=true;
+	}
+	this.setDoneLoading();
     },
 
     numColumns: function(){
@@ -233,7 +241,7 @@ WonderTable = Class.create(
     },
 
     getRowData:function(tr){
-	return this.getData( tr.cells[ this.id_column ].readAttribute('recid') );
+	return this.getData( tr.readAttribute('recid') );
     },
 
     getData: function( id ){
