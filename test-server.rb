@@ -16,8 +16,10 @@ end
 
 get '/data.json' do
     content_type 'application/json'
-    if params[:offset].to_i < 5000
-        {  :rows=> data.sort_by{ rand }.slice(0...(params[:limit]||100).to_i ) }.to_json 
+    # pretend we only have 500 rows
+    if params[:offset].to_i <= 500
+        # we just ignore the offset here, becouse we're randomizing it
+        {  :rows=> data.sort_by{ rand }.slice(0...params[:limit].to_i ) }.to_json 
     else
         { :rows=> [] }.to_json 
     end

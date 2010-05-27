@@ -1,3 +1,4 @@
+
 table.wonder tr.odd {
 	background-color: #FFF;
 }
@@ -58,18 +59,6 @@ table.wonder .nosort {
 	cursor: default;
 }
 
-table.wonder th.resize-handle-active {
-	cursor: e-resize;
-}
-
-div.resize-handle {
-	cursor: e-resize;
-	width: 2px;
-	border-right: 1px dashed #1E90FF;
-	position:absolute;
-	top:0;
-	left:0;
-}
 
 
 table.wonder tr.selected {
@@ -154,3 +143,34 @@ div.wonder-container thead tr	{
 /*prevent Mozilla scrollbar from hiding cell content*/
 div.wonder-container td:last-child {padding-right: 20px;}
 
+
+div.wonder-container div.spinner {
+  position: absolute;
+  opacity: 0.75;
+  z-index: 1;
+  filter:alpha(opacity: 75);
+  -moz-opacity: 0.75;
+  -khtml-opacity: 0.75;
+  background-color: #fff;
+}
+
+div.wonder-container div.spinner p {
+    background: #fff url('/images/icons/wt-spinner.gif') no-repeat;
+    text-indent: 45px;
+    font-size: 26px;
+    width: 250px;
+    margin-left: auto;
+    margin-right: auto;
+   
+    font-weight: normal;
+    padding: 4px 3px 3px 4px;
+
+}
+
+table.wonder th.col-4 {
+    width: 145px;
+}
+
+table.wonder td.col-2 {
+    white-space:nowrap;
+}

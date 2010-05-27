@@ -13,25 +13,23 @@ Test = {
 	this.table = new WonderTable( this.container, {
 					  'header': $w('BADCOLUMN_NAME Complete Due Description FooNoShow'),
 					  'url': '/data.json',
-					  'parameters': {
-					      'limit': 500
-					  }
+					  'limit': 100
 				      });
 
 	jsUnity.run( this.testHeader );
 	this.table.requestRows();
-	this.container.observe('WonderTable:insertedRows', function(){
+	this.container.observe('wonder-table:after-loading', function(){
 				    	jsUnity.run( this.testSorting );
 			       }.bind(this));
 
-	this.container.observe('WonderTable:nearingBottom', function(ev){
+	this.container.observe('wonder-table:scroll-bottom', function(ev){
 				   jsUnity.log('near bottom, ' + ev.memo.remaining + ' remains');
 			       }.bind(this));
 
-	this.container.observe('WonderTable:selected', function(ev){
+	this.container.observe('wonder-table:selected', function(ev){
 				   jsUnity.log( "Row " + ev.memo.row.rowIndex + " selected");
 			       }.bind(this));
-	this.container.observe('WonderTable:unselected', function(ev){
+	this.container.observe('wonder-table:unselected', function(ev){
 				   jsUnity.log( "Row " + ev.memo.row.rowIndex + " unselected");
 			       }.bind(this));
     },

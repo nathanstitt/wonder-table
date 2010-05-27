@@ -5,14 +5,25 @@ WonderTable = Class.create(
 	this.options = $H({
 	    'sort': true,
 	    'id_column': 0,
+	    'loading_text': 'Loading...',
 	    'no_sort': []
 	}).merge( options );
 	this.id_column = this.options.get('id_column');
+
 	this.rows = new Hash();
 	this.celldrawers=[];
 	this.parameters = $H( this.options.get('parameters') );
 	this.container = new Element('div',{'class':'wonder-container'} );
 	$(el).insert(this.container);
+
+	if ( this.options.get('loading_text') ){
+	    this.spinner = new Element('div', { className: 'spinner' } );
+	    this.spinner.hide();
+	    this.spinner_text = new Element('p');
+	    this.spinner_text.update( this.options.get('loading_text') );
+	    this.spinner.insert( this.spinner_text );
+	    this.container.insert( this.spinner );
+	}
 
 	this.table = new Element('table',{className:'wonder sortable'});
 
@@ -25,9 +36,9 @@ WonderTable = Class.create(
 	this.container.insert( this.table );
 	this.body.observe('scroll', function(ev){
 	    if ( ( this.scrollBottom() / this.body.scrollHeight ) < 0.10 ){
-		if ( ! ev.target.fire('WonderTable:nearingBottom', { 'remaining' :  this.scrollBottom()  } ).stopped
+		if ( ! ev.target.fire('wonder-table:scroll-bottom', { 'remaining' :  this.scrollBottom()  } ).stopped
 	    	     && this.options.get('url')
-		     && ! this.done_loading ){
+		     && ! this.all_loaded ){
 		    this.requestAdditionalRows();
 		}
 	    }
@@ -36,7 +47,7 @@ WonderTable = Class.create(
 	this.body.on('click', 'td', function(ev){
 			 var tr = ev.target.up('tr');
 			 if ( this.selected ){
-				 if ( tr.fire('WonderTable:unselected', { row: this.selected, data: this.getRowData( this.selected )  } ).stopped ){
+				 if ( tr.fire('wonder-table:unselected', { row: this.selected, data: this.getRowData( this.selected )  } ).stopped ){
 				     return;
 				  }
 				  this.selected.removeClassName('selected');
@@ -46,7 +57,7 @@ WonderTable = Class.create(
 				  }
 				  this.selected = null;
 			     }
-			 if ( ! tr.fire('WonderTable:selected', { row: tr, data:this.getRowData(tr)  } ).stopped ){
+			 if ( ! tr.fire('wonder-table:selected', { row: tr, data:this.getRowData(tr)  } ).stopped ){
 			     this.selected = tr;
 			     this.selected.addClassName('selected');
 			 }
@@ -107,25 +118,53 @@ WonderTable = Class.create(
 	this.requestRows();
     },
 
+    setLoading:function(){
+	if ( this.loading || this.container.fire( 'wonder-table:before-loading' ).stopped  ){
+	    return  false;
+	}
+	if ( this.spinner ){
+	    var l = new Element.Layout( this.body );
+	    this.spinner.setStyle({ 'top': l.get('top')+'px', 'height': l.get('border-box-height') + 'px', 'width': l.get('border-box-width') + 'px' });
+	    this.spinner_text.setStyle({ 'margin': ( this.body.getHeight() / 2 )-30 + 'px auto 0px' } );
+	    this.spinner.show();
+	}
+	this.loading = true;
+	return true;
+    },
+    setDoneLoading: function(){
+	this.loading=false;
+	if ( this.spinner ){
+	    this.spinner.hide();
+	}
+	this.body.fire( 'wonder-table:after-loading' );
+    },
+
     requestRows:function(){
-	this.parameters = $H(this.parameters).merge({
-	    'offset': this.numRows(),
-	    'limit': this.options.get('limit')
-	});
+	if ( ! this.setLoading() ){
+	    return;
+	}
+	if ( ( limit = this.options.get('limit') ) ){
+	    this.parameters = $H(this.parameters).merge({
+							    'offset': this.numRows(),
+							    'limit': limit
+							});
+	}
+
 	new Ajax.Request( this.options.get('url'),{
 	    parameters: this.parameters,
 	    method: 'get',
 	    contentType: 'application/json;',
 	    onSuccess: function(resp){
-		if ( resp.responseJSON && ! this.container.fire( 'WonderTable:loadedData', resp.responseJSON ).stopped ){
+		if ( resp.responseJSON ){
 		    if ( resp.responseJSON.rows.length ){
 			this.appendRows( resp.responseJSON.rows );
 		    } else {
-			this.done_loading = true;
+			this.all_loaded=true;
 		    }
+		    this.setDoneLoading();
 		}
 	    }.bind(this),
-	    onComplete: this.container.fire.bind( this.container, 'WonderTable:loadComplete' )
+	    onFailure: this.setDoneLoading.bind(this)
 	});
     },
 
@@ -206,6 +245,9 @@ WonderTable = Class.create(
     },
 
     appendRows:function(rows){
+	if ( this.body.fire( 'wonder-table:before-append', rows ).stopped ){
+	    return;
+	}
 	var html = [ this.body.innerHTML ];
 	var len = rows.length;
 	for ( var y = 0; y < len; y++ ) {
@@ -219,7 +261,7 @@ WonderTable = Class.create(
 	this.body.innerHTML = html.join('');
 	this.afterUpdate();
 	this.stripeRows();
-	this.body.fire('WonderTable:insertedRows',{'table':this});
+	this.body.fire('wonder-table:after-append',{'table':this});
     },
 
     stripeRows:function(){
