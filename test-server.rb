@@ -9,6 +9,7 @@ File.read( File.dirname(__FILE__) + '/randomdata.csv').each_line do | line |
     data << line.split('|')
 end
 
+srand
 
 get '/' do
     erb :index
