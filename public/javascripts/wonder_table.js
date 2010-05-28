@@ -54,7 +54,7 @@ WonderTable = Class.create(
 		    return;
 		}
 	    }
-	    if ( ! tr.fire('wonder-table:selected', { row: tr, data:this.getRowData(tr)  } ).stopped ){
+	    if ( ! tr.fire('wonder-table:selected', { 'row': tr, 'data':this.getRowData(tr),'cell':ev.findElement('td')  } ).stopped ){
 		this.selected = tr;
 		this.selected.addClassName('selected');
 	    }
@@ -154,8 +154,14 @@ WonderTable = Class.create(
 	}
 	if ( ( limit = this.options.get('limit') ) ){
 	    this.parameters = $H(this.parameters).merge({
-		    'offset': this.numRows(),
-		    'limit': limit
+		'offset': this.numRows(),
+		'limit': limit
+	    });
+	}
+	if ( this.sorted_by ){
+	    this.parameters = $H(this.parameters).merge({
+		'dir': this.sorted_by.hasClassName('asc') ? 'asc' : 'desc',
+		'sort': this.sorted_by.innerHTML
 	    });
 	}
 	new Ajax.Request( this.options.get('url'),{
@@ -301,6 +307,10 @@ WonderTable = Class.create(
 	var height = ( this.numRows() <= 10 ) ? ( this.body.rows.length * 30 ) : 300;
 	this.body.setStyle({ 'height': height +'px' } );
 	this.container.setStyle({'height': (height+35) + 'px'});
+	if ( this.sorted_by ){
+	    this.sorted_by.removeClassName( 'sorted').removeClassName('asc').removeClassName('desc');
+	    this.sorted_by = null;
+	}
     },
 
     layout: function(){

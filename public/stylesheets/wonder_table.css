@@ -3,6 +3,7 @@ table.wonder tr.odd {
 	background-color: #FFF;
 }
 
+
 table.wonder tr.even {
 	background-color: #F2F2F2;
 }
@@ -88,6 +89,7 @@ table.wonder {
     border-left: 1px solid #999;
 }
 
+
 table.wonder th {
     margin: 0;
     border-right: 1px solid #999;
@@ -96,6 +98,7 @@ table.wonder th {
     padding: 4px 3px 3px 4px;
     background: #D9E9EF;
     font-weight: bold;
+    white-space:nowrap;
 }
 
 table.wonder td {
