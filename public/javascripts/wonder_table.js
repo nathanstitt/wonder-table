@@ -154,21 +154,7 @@ WonderTable = Class.create(
 	if ( this.spinner ){
 	    this.spinner.hide();
 	}
-	var row = this.body.rows[0];
-	var i = 0;
-	var ttl = 0;
-	var padding = 0;
-	for ( ; i<this.num_columns-1; i++ ){
-	    var w = row.cells[i].getWidth() ;
-	    this.header.children[ i ].setStyle({'width': w + 'px' } );
-	    if ( ! i ){
-		padding = ( this.header.children[i ].getLayout().get('margin-box-width') - w );
-	    }
-	    ttl += ( w + padding );
-	}
-	this.header.children[ i ].setStyle({'width': ( this.container.getWidth() - ttl - padding ) + 'px' } );
 	this.body.fire( 'wonder-table:after-loading' );
-
     },
 
     requestRows:function(){
@@ -337,6 +323,19 @@ WonderTable = Class.create(
 	    this.sorted_by.removeClassName( 'sorted').removeClassName('asc').removeClassName('desc');
 	    this.sorted_by = null;
 	}
+	var row = this.body.rows[0];
+	var col = 0;
+	var ttl = 0;
+	var padding = 0;
+	for ( ; col<this.num_columns-1; col++ ){
+	    var w = row.cells[col].getWidth() ;
+	    this.header.children[ col ].setStyle({'width': w + 'px' } );
+	    if ( ! col ){
+		padding = ( this.header.children[ col ].getLayout().get('margin-box-width') - w );
+	    }
+	    ttl += ( w + padding );
+	}
+	this.header.children[ col ].setStyle({'width': ( this.container.getWidth() - ttl - padding ) + 'px' } );
     },
 
 
