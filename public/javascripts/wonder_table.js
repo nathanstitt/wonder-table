@@ -159,7 +159,7 @@ WonderTable = Class.create(
 	var ttl = 0;
 	var padding = 0;
 	for ( ; i<this.num_columns-1; i++ ){
-	    var w=row.cells[i].getWidth();
+	    var w = row.cells[i].getWidth() ;
 	    this.header.children[ i ].setStyle({'width': w + 'px' } );
 	    if ( ! i ){
 		padding = ( this.header.children[i ].getLayout().get('margin-box-width') - w );
@@ -298,7 +298,7 @@ WonderTable = Class.create(
 	    html.push( this.htmlForRow( rows[y] ) );
 	    html.push('</tr>');
 	}
-	this.body.innerHTML = html.join('');
+	this.body.update( html.join('') );
 	this.afterUpdate();
 	this.stripeRows();
 	this.body.fire('wonder-table:after-append',{'table':this});
