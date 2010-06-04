@@ -54,7 +54,12 @@ WonderTable = Class.create(
 		    return;
 		}
 	    }
-	    if ( ! tr.fire('wonder-table:selected', { 'row': tr, 'data':this.getRowData(tr),'cell':ev.findElement('td')  } ).stopped ){
+	    if ( ! tr.fire('wonder-table:selected', {
+				   'target': ev.target,
+				   'row': tr,
+				   'data':this.getRowData(tr),
+				   'cell': ev.findElement('td')
+			   } ).stopped ){
 		this.selected = tr;
 		this.selected.addClassName('selected');
 	    }
@@ -203,6 +208,9 @@ WonderTable = Class.create(
     removeRow:function( row ){
 	row.remove();
 	this.afterUpdate();
+	if ( this.selected == row ){
+	    this.selected = null;
+	}
     },
 
 
@@ -306,7 +314,7 @@ WonderTable = Class.create(
     afterUpdate:function(){
 	var height = ( this.numRows() <= 10 ) ? ( this.body.rows.length * 30 ) : 300;
 	this.body.setStyle({ 'height': height +'px' } );
-	this.container.setStyle({'height': (height+35) + 'px'});
+	this.container.setStyle({'height': (height+65) + 'px'});
 	if ( this.sorted_by ){
 	    this.sorted_by.removeClassName( 'sorted').removeClassName('asc').removeClassName('desc');
 	    this.sorted_by = null;
