@@ -323,7 +323,14 @@ WonderTable = Class.create(
 	    this.sorted_by.removeClassName( 'sorted').removeClassName('asc').removeClassName('desc');
 	    this.sorted_by = null;
 	}
+	this.updateHeaderWidths();
+    },
+
+    updateHeaderWidths: function(){
 	var row = this.body.rows[0];
+	if ( ! row ){
+	    return;
+	}
 	var col = 0;
 	var ttl = 0;
 	var padding = 0;
@@ -337,7 +344,6 @@ WonderTable = Class.create(
 	}
 	this.header.children[ col ].setStyle({'width': ( this.container.getWidth() - ttl - padding ) + 'px' } );
     },
-
 
     scrollBottom: function(){
 	return -1 * ( this.scroller.getHeight() - ( this.scroller.scrollHeight - this.scroller.scrollTop ) );
