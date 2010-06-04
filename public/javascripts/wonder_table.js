@@ -13,7 +13,7 @@ WonderTable = Class.create(
 	this.rows = new Hash();
 	this.celldrawers=[];
 	this.parameters = $H( this.options.get('parameters') );
-	this.container = new Element('div',{'class':'wonder-container'} );
+	this.container = new Element('div',{ className:'wonder'} );
 	$(el).insert(this.container);
 
 	if ( this.options.get('loading_text') ){
@@ -25,17 +25,20 @@ WonderTable = Class.create(
 	    this.container.insert( this.spinner );
 	}
 
-	this.table = new Element('table',{className:'wonder sortable'});
+	
+	this.header = new Element('div',{className:'header'});
+	this.container.insert( this.header );
 
-	this.head = new Element('thead');
-	this.table.insert( this.head );
-	this.head_row = $( this.head.insertRow( 0 ) );
+	this.scroller = new Element('div',{className:'scroll'});
+	this.container.insert( this.scroller );
 
+	this.table = new Element('table',{className:'rows'});
 	this.body = new Element('tbody');
 	this.table.insert( this.body );
-	this.container.insert( this.table );
-	this.body.observe('scroll', function(ev){
-	    if ( ( this.scrollBottom() / this.body.scrollHeight ) < 0.10 ){
+	this.scroller.insert( this.table );
+
+	this.scroller.observe('scroll', function(ev){
+	    if ( ( this.scrollBottom() / this.scroller.scrollHeight ) < 0.10 ){
 		if ( ! ev.target.fire('wonder-table:scroll-bottom', { 'remaining' :  this.scrollBottom()  } ).stopped
 	    	     && this.options.get('url')
 		     && ! this.all_loaded ){
@@ -70,11 +73,12 @@ WonderTable = Class.create(
 	}
 
 	if ( this.options.get('sort') ){
-	    this.head_row.on('click', 'th', function(ev){
-		this.sortByColumn( ev.target.cellIndex, ! ev.target.hasClassName('asc') );
+	    this.header.on('click', 'div', function(ev){
+		this.sortByColumn( this.header.childElements().indexOf( ev.target ), ! ev.target.hasClassName('asc') );
 	    }.bind(this) );
 	}
     },
+
     unSelect:function(){
 	if ( ! this.selected ){
 	    return false;
@@ -104,7 +108,7 @@ WonderTable = Class.create(
 	    this.sorted_by.removeClassName( 'sorted').removeClassName('asc').removeClassName('desc');
 	}
 	var rows = $A(this.body.rows);
-	var new_sort = this.head_row.cells[ index ];
+	var new_sort = this.header.children[ index ];
 
 	if ( this.sorted_by === new_sort ){
 	    rows.reverse();
@@ -136,21 +140,35 @@ WonderTable = Class.create(
 	    return  false;
 	}
 	if ( this.spinner ){
-	    var l = new Element.Layout( this.body );
+	    var l = new Element.Layout( this.scroller );
 	    this.spinner.setStyle({ 'top': l.get('top')+'px', 'height': l.get('border-box-height') + 'px', 'width': l.get('border-box-width') + 'px' });
-	    this.spinner_text.setStyle({ 'margin': ( this.body.getHeight() / 2 )-30 + 'px auto 0px' } );
+	    this.spinner_text.setStyle({ 'margin': ( this.scroller.getHeight() / 2 )-30 + 'px auto 0px' } );
 	    this.spinner.show();
 	}
 	this.loading = true;
 	return true;
     },
 
-    setDoneLoading: function(){
+    afterLoading: function(){
 	this.loading=false;
 	if ( this.spinner ){
 	    this.spinner.hide();
 	}
+	var row = this.body.rows[0];
+	var i = 0;
+	var ttl = 0;
+	var padding = 0;
+	for ( ; i<this.num_columns-1; i++ ){
+	    var w=row.cells[i].getWidth();
+	    this.header.children[ i ].setStyle({'width': w + 'px' } );
+	    if ( ! i ){
+		padding = ( this.header.children[i ].getLayout().get('margin-box-width') - w );
+	    }
+	    ttl += ( w + padding );
+	}
+	this.header.children[ i ].setStyle({'width': ( this.container.getWidth() - ttl - padding ) + 'px' } );
 	this.body.fire( 'wonder-table:after-loading' );
+
     },
 
     requestRows:function(){
@@ -174,7 +192,7 @@ WonderTable = Class.create(
 	    method: 'get',
 	    contentType: 'application/json;',
 	    onSuccess: this.appendResponse.bind(this),
-	    onComplete: this.setDoneLoading.bind(this)
+	    onFailure: this.afterLoading.bind(this)
 	});
     },
 
@@ -184,7 +202,7 @@ WonderTable = Class.create(
 	} else {
 	    this.all_loaded=true;
 	}
-	this.setDoneLoading();
+	this.afterLoading();
     },
 
     numColumns: function(){
@@ -218,21 +236,21 @@ WonderTable = Class.create(
 	this.num_columns = cols.length;
 	var cell;
 	for ( var i = 0; i < this.num_columns; ++i ){
-	    if ( this.head_row.cells.length > i ){
-		cell = this.head_row.cells[i];
+	    if ( this.header.children.length > i ){
+		cell = this.header.children[i];
 		cell.update( cols[i] );
 	    } else {
-		cell = new Element('th' );
+		cell = new Element('div' );
 		cell.update( cols[i] );
-		this.head_row.appendChild( cell );
+		this.header.appendChild( cell );
 	    }
 	    cell.className = 'col-'+i;
 	    if ( this.options.get('no_sort').include(i) ){
 		cell.addClassName( 'nosort' );
 	    }
 	}
-	for ( ; i < this.head_row.cells.length; ++i ){
-	    this.head_row.deleteCell( i );
+	for ( ; i < this.header.children.length; ++i ){
+	    this.header.children[i].remove();
 	}
     },
 
@@ -321,13 +339,9 @@ WonderTable = Class.create(
 	}
     },
 
-    layout: function(){
-	this.table.setStyle({'width': ( this.container.getWidth()-35 ) + 'px' } );
-
-    },
 
     scrollBottom: function(){
-	return -1 * ( this.body.getHeight() - ( this.body.scrollHeight - this.body.scrollTop ) );
+	return -1 * ( this.scroller.getHeight() - ( this.scroller.scrollHeight - this.scroller.scrollTop ) );
     },
 
     setColumnSorter: function(index,func){

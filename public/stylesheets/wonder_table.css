@@ -1,87 +1,22 @@
-
-table.wonder tr.odd {
-	background-color: #FFF;
+div.wonder {
+    width: 970px;
+    margin: 0px;
+    overflow: hidden;
+    position: relative;
 }
 
-
-table.wonder tr.even {
-	background-color: #F2F2F2;
+div.wonder div.header {
+    width: 100%;
 }
 
-table.wonder .sortcol {
-	cursor: pointer;
-	padding-right: 20px;
-	background-repeat: no-repeat;
-	background-position: right center;
+div.wonder div.scroll {
+    height: 335px;	
+    overflow-y: auto;
+    clear: both;
 }
 
-
-table.wonder .nosort {
-	cursor: default;
-}
-
-
-table.wonder tr.selected {
-	background-color: #EBC2C0;
-}
-
-
-table.wonder tr.deleted td {
-    text-decoration: line-through;
-}
-
-
-table.wonder #cleared {
-    font-size:70%;
-    line-height:0.4em;
-    padding: 0px 5px 5px 2px;
-    text-align:center;
-}
-
-
-table.wonder .sorted {
-	cursor: pointer;
-	padding-right: 20px;
-	background-repeat: no-repeat;
-	background-position: right center;
-}
-
-table.wonder .asc {
-	background-color: #DDFFAC;
-	background-image: url(/images/icons/wt-down.gif);
-}
-
-table.wonder .desc {
-	background-color: #B9DDFF;
-	background-image: url(/images/icons/wt-up.gif);
-}
-
-table.wonder .nosort {
-	cursor: default;
-}
-
-
-
-table.wonder tr.selected {
-	background-color: #EBC2C0;
-}
-
-
-table.wonder tr.deleted td {
-    text-decoration: line-through;
-}
-
-
-table.wonder #cleared {
-    font-size:70%;
-    line-height:0.4em;
-    padding: 0px 5px 5px 2px;
-    text-align: seperate;
-}
-
-
-/* datTable for styling only */
-table.wonder {
+div.wonder table {
+    width: 100%;
     border-collapse: separate;
     margin: 0;
     padding: 0;
@@ -90,8 +25,10 @@ table.wonder {
 }
 
 
-table.wonder th {
-    margin: 0;
+div.wonder div.header div {
+    margin: 1px;
+    float: left;
+    overflow: hidden;
     border-right: 1px solid #999;
     border-top: 1px solid #999;
     font-weight: normal;
@@ -101,53 +38,56 @@ table.wonder th {
     white-space:nowrap;
 }
 
-table.wonder td {
+div.wonder td {
     margin: 0;
     border-right: 1px solid #999;
     border-top: 1px solid #999;	
     padding: 2px 3px 3px 4px
 }
 
-/* This makes the scrolling table work */
-
-div.wonder-container {
-    height: 335px;	
-    overflow: auto;
-    width: 970px;
-    margin: 0px;
-    position: relative;
+div.wonder tr.odd {
+    background-color: #FFF;
 }
 
-/* The different widths below are due to the way the scroll bar is implamented
-we are keeping these here instead of putting them in the IE css file b/c it 
-is easier to change the width if both numbers are in the same place. */
 
-/* All browsers accept this, but we are targeting IE with this rule */
-div.wonder-container table {
-	width: 952px;
+div.wonder tr.even {
+    background-color: #F2F2F2;
 }
 
-/* Modern browsers accept this (not IE) and we are targetting firefox */
-html>/**/body div.wonder-container table {
-    width: 970px;
+
+div.wonder tr.selected {
+    background-color: #EBC2C0;
 }
 
-/* Modern browsers accept this (not IE) and we are targetting firefox */
-html>/**/body div.wonder-container table>tbody	{  
-    overflow: auto; 
-    height: 250px;
-    overflow-x: hidden;
+
+div.wonder tr.deleted td {
+    text-decoration: line-through;
 }
 
-div.wonder-container thead tr	{
-	position:relative;
+
+div.wonder div.header div.sorted {
+    cursor: pointer;
+    background-repeat: no-repeat;
+    background-position: right center;
 }
 
-/*prevent Mozilla scrollbar from hiding cell content*/
-div.wonder-container td:last-child {padding-right: 20px;}
+div.wonder div.header div.asc {
+    background-color: #DDFFAC;
+    background-image: url(/images/icons/wt-down.gif);
+}
+
+div.wonder div.header div.desc {
+    background-color: #B9DDFF;
+    background-image: url(/images/icons/wt-up.gif);
+}
+
+div.wonder div.header div.nosort {
+    cursor: default;
+}
 
 
-div.wonder-container div.spinner {
+
+div.wonder div.spinner {
   position: absolute;
   opacity: 0.75;
   z-index: 1;
@@ -157,7 +97,7 @@ div.wonder-container div.spinner {
   background-color: #fff;
 }
 
-div.wonder-container div.spinner p {
+div.wonder div.spinner p {
     background: #fff url('/images/icons/wt-spinner.gif') no-repeat;
     text-indent: 45px;
     font-size: 26px;
@@ -167,13 +107,6 @@ div.wonder-container div.spinner p {
    
     font-weight: normal;
     padding: 4px 3px 3px 4px;
-
 }
 
-table.wonder th.col-4 {
-    width: 145px;
-}
 
-table.wonder td.col-2 {
-    white-space:nowrap;
-}
