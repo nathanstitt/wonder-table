@@ -25,7 +25,7 @@ WonderTable = Class.create(
 	    this.container.insert( this.spinner );
 	}
 
-	
+
 	this.header = new Element('div',{className:'header'});
 	this.container.insert( this.header );
 
@@ -335,14 +335,16 @@ WonderTable = Class.create(
 	var ttl = 0;
 	var padding = 0;
 	for ( ; col<this.num_columns-1; col++ ){
-	    var w = row.cells[col].getWidth() ;
+	    var w = row.cells[col].getWidth();
 	    this.header.children[ col ].setStyle({'width': w + 'px' } );
 	    if ( ! col ){
-		padding = ( this.header.children[ col ].getLayout().get('margin-box-width') - w );
+		padding = ( this.header.children[ col ].getLayout().get('margin-box-width') - w ) + 1;
 	    }
 	    ttl += ( w + padding );
 	}
-	this.header.children[ col ].setStyle({'width': ( this.container.getWidth() - ttl - padding ) + 'px' } );
+	this.header.children[ col ].setStyle({'width':
+					      ( this.container.getWidth() - ttl - 2 )
+					      + 'px' } );
     },
 
     scrollBottom: function(){
