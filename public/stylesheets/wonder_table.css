@@ -5,9 +5,10 @@ div.wonder {
     position: relative;
 }
 
-div.wonder div.header {
+div.wonder div.header, div.wonder div.footer {
     width: 100%;
 }
+
 
 div.wonder div.scroll {
     height: 335px;	
@@ -25,7 +26,7 @@ div.wonder table {
 }
 
 
-div.wonder div.header div {
+div.wonder div.header div, div.wonder div.footer div{
     margin: 1px;
     float: left;
     overflow: hidden;
@@ -36,6 +37,12 @@ div.wonder div.header div {
     background: #D9E9EF;
     font-weight: bold;
     white-space:nowrap;
+}
+
+div.wonder div.header div.last, div.wonder div.footer div.last{
+    margin-right: 0px;
+    position:absolute;
+    right: 0px;
 }
 
 div.wonder td {

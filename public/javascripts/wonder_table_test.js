@@ -17,6 +17,8 @@ Test = {
 				      });
 
 	jsUnity.run( this.testHeader );
+	jsUnity.run( this.testFooter );
+
 	this.table.requestRows();
 	this.container.observe('wonder-table:after-loading', function(){
 				    	jsUnity.run( this.testSorting );
@@ -34,15 +36,29 @@ Test = {
 			       }.bind(this));
     },
 
+    testFooter: {
+	suiteName: "Footer Change Tests",
+	testCountMatch:function() {
+	    assertException( function(){
+				 Test.table.setFooter( ['None'] );
+			     } );
+	},
+	testAfter:function () {
+	    Test.table.setFooter( $w('Delete Complete Due Description Status') );
+	    assertMatch( /Delete/, $$('.footer div.col-0')[0].innerHTML );
+	    assertEqual( 5, $$('.footer div').length );
+	}
+    },
+
     testHeader: {
 	suiteName: "Header Change Tests",
 	testBefore:function() {
-	    assertMatch( /BAD/, $$('thead th.col-0')[0].innerHTML );
+	    assertMatch( /BAD/, $$('.header div.col-0')[0].innerHTML );
 	},
 	testAfter:function () {
 	    Test.table.setHeader( $w('Delete Complete Due Description Status') );
-	    assertMatch( /Delete/, $$('thead th.col-0')[0].innerHTML );
-	    assertEqual( 5, $$('thead th').length );
+	    assertMatch( /Delete/, $$('.header div.col-0')[0].innerHTML );
+	    assertEqual( 5, $$('.header div').length );
 	}
     },
 
