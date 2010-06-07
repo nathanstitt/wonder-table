@@ -317,7 +317,6 @@ WonderTable = Class.create(
 
     afterUpdate:function(){
 	var height = ( this.numRows() <= 10 ) ? ( this.body.rows.length * 30 ) : 300;
-	this.body.setStyle({ 'height': height +'px' } );
 	this.container.setStyle({'height': (height+65) + 'px'});
 	if ( this.sorted_by ){
 	    this.sorted_by.removeClassName( 'sorted').removeClassName('asc').removeClassName('desc');
