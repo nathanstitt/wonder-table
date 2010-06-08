@@ -387,9 +387,9 @@ WonderTable = Class.create(
 	var col = 0;
 	for ( ; col<this.num_columns; col++ ){
  	    layout = row.cells[ col ].getLayout();
-	    var style = { 'left': ( col ?  layout.get('left') : 0 ) +'px' };
+	    var style = { 'left': ( col ?  layout.get('left')-3 : 0 ) +'px' };
 	    if ( col < this.num_columns-1 ){
-		style[ 'width' ] = ( ( col ? 0 : layout.get('left') ) + layout.get('margin-box-width' ) - (padding*2) ) + 'px';
+		style[ 'width' ] = ( ( ( col ? 0 : layout.get('left') ) + layout.get('margin-box-width' ) - (padding*2) )  )+ 'px';
 		style[ 'paddingLeft']  = padding + 'px';
 		style[ 'paddingRight'] = padding + 'px';
 	    }
