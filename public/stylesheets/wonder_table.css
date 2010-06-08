@@ -13,7 +13,8 @@ div.wonder div.header, div.wonder div.footer {
 div.wonder div.scroll {
     height: 335px;	
     overflow-y: auto;
-    border: 1px solid #999;
+    border-top: 1px solid #999;
+    border-bottom: 1px solid #999;
     clear: both;
 }
 
