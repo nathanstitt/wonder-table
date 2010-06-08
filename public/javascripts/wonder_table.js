@@ -25,14 +25,18 @@ WonderTable = Class.create(
 	    this.container.insert( this.spinner );
 	}
 
-
 	this.header = new Element('div',{className:'header'});
+//	var div = new Element('div',{className:'label-container'});
+//	div.insert( this.header );
 	this.container.insert( this.header );
 
 	this.scroller = new Element('div',{className:'scroll'});
 	this.container.insert( this.scroller );
 
 	this.footer = new Element('div',{className:'footer'});
+//	div = new Element('div',{className:'label-container'});
+//	div.insert( this.footer );
+//	this.container.insert( div );
 	this.container.insert( this.footer );
 
 
@@ -80,13 +84,32 @@ WonderTable = Class.create(
 	    this.setFooter( footer );
 	}
 
-	if ( this.options.get('sort') ){
-	    this.header.on('click', 'div', function(ev){
-		this.sortByColumn( this.header.childElements().indexOf( ev.target ), ! ev.target.hasClassName('asc') );
-	    }.bind(this) );
-	}
+	this.footer.on('click', 'div', function(ev){
+		var index = this.footer.childElements().indexOf( ev.target );
+		if ( ! this.selected.fire('wonder-table:footer-clicked', { columnIndex: index } ).stopped && this.options.get('sort') ){
+		    this.sortByColumn( index, ! ev.target.hasClassName('asc') );
+		}
+	}.bind(this) );
+
+	this.header.on('click', 'div', function(ev){
+		var index = this.header.childElements().indexOf( ev.target );
+		if ( ! this.selected.fire('wonder-table:header-clicked', { columnIndex: index } ).stopped && this.options.get('sort') ){
+		    this.sortByColumn( index, ! ev.target.hasClassName('asc') );
+		}
+	}.bind(this) );
+
     },
 
+    avgColumn:function(index){
+	return this.sumColumn( index ) / this.numRows();
+    },
+
+    sumColumn:function(index){
+	var sorter = this.getColumnSorter( index );
+	var ret = 0;
+	this.body.select('td.col-'+index).each(function(el){ ret += sorter.normal(el.innerHTML); });
+	return ret;
+    },
     unSelect:function(){
 	if ( ! this.selected ){
 	    return false;
@@ -350,22 +373,35 @@ WonderTable = Class.create(
 	    return;
 	}
 	var row = this.body.rows[0];
+	var layout;
 	if ( ! row ){
 	    return;
 	}
 	var col = 0;
-	for ( ; col<this.num_columns-1; col++ ){
-	    var w = row.cells[col].getWidth();
-	    this.header.children[ col ].setStyle({'width': w + 'px' } );
-	    if ( this.footer_set ){
-		this.footer.children[ col ].setStyle({'width': w + 'px' } );
+	for ( ; col<this.num_columns; col++ ){
+
+ 	    layout = row.cells[ col ].getLayout();
+	    var style = { 'left': ( col ?  layout.get('left') : 0 ) +'px' };
+	    if ( col < this.num_columns-1 ){
+		style[ 'width' ] = ( col ? layout.get('padding-box-width') : layout.get('padding-box-width') + (layout.get('padding-left')/2) ) + 'px';
+//+ ( col ? 0 : ( layout.get('padding-left')  ) ) ) + 'px';
 	    }
+ 	    this.header.children[ col ].setStyle( style );
+ 	    if ( this.footer_set ){
+ 	    	this.footer.children[ col ].setStyle( style );
+ 	    }
+
+	    // var w = row.cells[col].getWidth();
+	    // this.header.children[ col ].setStyle({'width': w + 'px' } );
+	    // if ( this.footer_set ){
+	    // 	this.footer.children[ col ].setStyle({'width': w + 'px' } );
+	    // }
 	}
-	var l = this.header.children[ col-1 ].getLayout();
-	this.header.children[ col ].setStyle({'left':( l.get('left')+l.get('margin-box-width') ) + 'px' });
-	if ( this.footer_set ){
-	    this.footer.children[ col ].setStyle({'left':( l.get('left')+l.get('margin-box-width') ) + 'px' });
-	}
+	// layout = row.cells[ col ].getLayout();
+	// this.header.children[ col ].setStyle({'left':( layout.get('left') ) + 'px' });
+	// if ( this.footer_set ){
+	//     this.footer.children[ col ].setStyle({'left':( layout.get('left')+layout.get('margin-box-width') ) + 'px' });
+	// }
     },
 
     scrollBottom: function(){

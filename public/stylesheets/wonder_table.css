@@ -25,24 +25,36 @@ div.wonder table {
     border-left: 1px solid #999;
 }
 
+div.wonder div.label-container {
+    height: 30px;
+}
+
+div.wonder div.header, div.wonder div.footer {
+    position: relative;
+    height: 30px;
+}
 
 div.wonder div.header div, div.wonder div.footer div{
-    margin: 1px;
-    float: left;
+    height: 25px;
     overflow: hidden;
     border-right: 1px solid #999;
     border-top: 1px solid #999;
     font-weight: normal;
-    padding: 4px 3px 3px 4px;
+    padding-top: 5px;
     background: #D9E9EF;
     font-weight: bold;
     white-space:nowrap;
+    position:absolute;
 }
+
 
 div.wonder div.header div.last, div.wonder div.footer div.last{
     margin-right: 0px;
-    position:absolute;
     right: 0px;
+}
+
+div.wonder div.header div.col-0, div.wonder div.footer div.col-0 {
+    border-left: 1px solid #999;
 }
 
 div.wonder td {
