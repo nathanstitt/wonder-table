@@ -13,6 +13,7 @@ div.wonder div.header, div.wonder div.footer {
 div.wonder div.scroll {
     height: 335px;	
     overflow-y: auto;
+    border: 1px solid #999;
     clear: both;
 }
 
@@ -25,20 +26,16 @@ div.wonder table {
     border-left: 1px solid #999;
 }
 
-div.wonder div.label-container {
-    height: 30px;
-}
 
 div.wonder div.header, div.wonder div.footer {
     position: relative;
-    height: 30px;
+    height: 32px;
 }
 
 div.wonder div.header div, div.wonder div.footer div{
     height: 25px;
     overflow: hidden;
-    border-right: 1px solid #999;
-    border-top: 1px solid #999;
+    border: 1px solid #999;
     font-weight: normal;
     padding-top: 5px;
     background: #D9E9EF;
@@ -50,6 +47,7 @@ div.wonder div.header div, div.wonder div.footer div{
 
 div.wonder div.header div.last, div.wonder div.footer div.last{
     margin-right: 0px;
+    padding-right: 16px;
     right: 0px;
 }
 

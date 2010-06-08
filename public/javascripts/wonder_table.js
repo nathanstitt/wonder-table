@@ -5,6 +5,7 @@ WonderTable = Class.create(
 	this.options = $H({
 	    'sort': true,
 	    'id_column': 0,
+	    'label-padding': 5,
 	    'loading_text': 'Loading...',
 	    'no_sort': []
 	}).merge( options );
@@ -26,17 +27,12 @@ WonderTable = Class.create(
 	}
 
 	this.header = new Element('div',{className:'header'});
-//	var div = new Element('div',{className:'label-container'});
-//	div.insert( this.header );
 	this.container.insert( this.header );
 
 	this.scroller = new Element('div',{className:'scroll'});
 	this.container.insert( this.scroller );
 
 	this.footer = new Element('div',{className:'footer'});
-//	div = new Element('div',{className:'label-container'});
-//	div.insert( this.footer );
-//	this.container.insert( div );
 	this.container.insert( this.footer );
 
 
@@ -47,7 +43,7 @@ WonderTable = Class.create(
 
 	this.scroller.observe('scroll', function(ev){
 	    if ( ( this.scrollBottom() / this.scroller.scrollHeight ) < 0.10 ){
-		if ( ! ev.target.fire('wonder-table:scroll-bottom', { 'remaining' :  this.scrollBottom()  } ).stopped
+		if ( ! ev.target.fire('wonder-table:scroll-bottom', { 'table':this,'remaining' :  this.scrollBottom()  } ).stopped
 	    	     && this.options.get('url')
 		     && ! this.all_loaded ){
 		    this.requestAdditionalRows();
@@ -66,10 +62,11 @@ WonderTable = Class.create(
 		}
 	    }
 	    if ( ! tr.fire('wonder-table:selected', {
-				   'target': ev.target,
-				   'row': tr,
-				   'data':this.getRowData(tr),
-				   'cell': ev.findElement('td')
+			       'target': ev.target,
+			       'row': tr,
+			       'data':this.getRowData(tr),
+			       'cell': ev.findElement('td'),
+			       'table': this
 			   } ).stopped ){
 		this.selected = tr;
 		this.selected.addClassName('selected');
@@ -82,18 +79,22 @@ WonderTable = Class.create(
 
 	if ( ( footer = this.options.get('footer') ) ){
 	    this.setFooter( footer );
+	} else {
+	    this.footer.hide();
 	}
 
 	this.footer.on('click', 'div', function(ev){
 		var index = this.footer.childElements().indexOf( ev.target );
-		if ( ! this.selected.fire('wonder-table:footer-clicked', { columnIndex: index } ).stopped && this.options.get('sort') ){
+			   if ( ! ev.target.fire('wonder-table:footer-clicked', { 'table': this,
+			       columnIndex: index } ).stopped && this.options.get('sort') ){
 		    this.sortByColumn( index, ! ev.target.hasClassName('asc') );
 		}
 	}.bind(this) );
 
 	this.header.on('click', 'div', function(ev){
 		var index = this.header.childElements().indexOf( ev.target );
-		if ( ! this.selected.fire('wonder-table:header-clicked', { columnIndex: index } ).stopped && this.options.get('sort') ){
+			   if ( ! ev.target.fire('wonder-table:header-clicked', { 'table':this,
+			       columnIndex: index } ).stopped && this.options.get('sort') ){
 		    this.sortByColumn( index, ! ev.target.hasClassName('asc') );
 		}
 	}.bind(this) );
@@ -114,7 +115,9 @@ WonderTable = Class.create(
 	if ( ! this.selected ){
 	    return false;
 	}
-	if ( this.selected.fire('wonder-table:unselected', { row: this.selected, data: this.getRowData( this.selected )  } ).stopped ){
+	if ( this.selected.fire('wonder-table:unselected', { table: this,
+							     row: this.selected,
+							     data: this.getRowData( this.selected )  } ).stopped ){
 	    return false;
 	}
 	this.selected.removeClassName('selected');
@@ -167,7 +170,7 @@ WonderTable = Class.create(
     },
 
     setLoading:function(){
-	if ( this.loading || this.container.fire( 'wonder-table:before-loading' ).stopped  ){
+	if ( this.loading || this.container.fire( 'wonder-table:before-loading',{ table:this } ).stopped  ){
 	    return  false;
 	}
 	if ( this.spinner ){
@@ -185,7 +188,7 @@ WonderTable = Class.create(
 	if ( this.spinner ){
 	    this.spinner.hide();
 	}
-	this.body.fire( 'wonder-table:after-loading' );
+	this.body.fire( 'wonder-table:after-loading',{table:this} );
     },
 
     requestRows:function(){
@@ -229,6 +232,7 @@ WonderTable = Class.create(
     updateRow: function( rowIndex, data ){
 	var row = $( this.body.rows[ rowIndex ] );
 	row.update( this.htmlForRow( data ) );
+	this.afterUpdate();
 	return row;
     },
 
@@ -249,8 +253,9 @@ WonderTable = Class.create(
     },
 
     setFooter: function( cols ){
+	this.footer.show();
 	if ( this.num_columns && this.num_columns != cols.length ){
-	    throw "Number of footer columns must match number of header columns"
+	    throw "Number of footer columns must match number of header columns";
 	}
 	this.footer_set = true;
 	this._setLabels( cols, this.footer );
@@ -314,7 +319,7 @@ WonderTable = Class.create(
     },
 
     appendRows:function(rows){
-	if ( this.body.fire( 'wonder-table:before-append', rows ).stopped ){
+	if ( this.body.fire( 'wonder-table:before-append', { rows: rows, table: this } ).stopped ){
 	    return;
 	}
 	var html = [ this.body.innerHTML ];
@@ -330,7 +335,7 @@ WonderTable = Class.create(
 	this.body.update( html.join('') );
 	this.afterUpdate();
 	this.stripeRows();
-	this.body.fire('wonder-table:after-append',{'table':this});
+	this.body.fire('wonder-table:after-append',{'table':this, rows: rows });
     },
 
     stripeRows:function(){
@@ -366,6 +371,7 @@ WonderTable = Class.create(
 	    this.sorted_by = null;
 	}
 	this.updateLabelWidths();
+	this.scroller.fire('wonder-table:after-update',{'table': this } );
     },
 
     updateLabelWidths: function(){
@@ -377,31 +383,21 @@ WonderTable = Class.create(
 	if ( ! row ){
 	    return;
 	}
+	var padding = this.options.get('label-padding');
 	var col = 0;
 	for ( ; col<this.num_columns; col++ ){
-
  	    layout = row.cells[ col ].getLayout();
 	    var style = { 'left': ( col ?  layout.get('left') : 0 ) +'px' };
 	    if ( col < this.num_columns-1 ){
-		style[ 'width' ] = ( col ? layout.get('padding-box-width') : layout.get('padding-box-width') + (layout.get('padding-left')/2) ) + 'px';
-//+ ( col ? 0 : ( layout.get('padding-left')  ) ) ) + 'px';
+		style[ 'width' ] = ( layout.get('margin-box-width' ) - (padding*2) ) + 'px';
+		style[ 'paddingLeft']  = padding + 'px';
+		style[ 'paddingRight'] = padding + 'px';
 	    }
  	    this.header.children[ col ].setStyle( style );
  	    if ( this.footer_set ){
  	    	this.footer.children[ col ].setStyle( style );
  	    }
-
-	    // var w = row.cells[col].getWidth();
-	    // this.header.children[ col ].setStyle({'width': w + 'px' } );
-	    // if ( this.footer_set ){
-	    // 	this.footer.children[ col ].setStyle({'width': w + 'px' } );
-	    // }
 	}
-	// layout = row.cells[ col ].getLayout();
-	// this.header.children[ col ].setStyle({'left':( layout.get('left') ) + 'px' });
-	// if ( this.footer_set ){
-	//     this.footer.children[ col ].setStyle({'left':( layout.get('left')+layout.get('margin-box-width') ) + 'px' });
-	// }
     },
 
     scrollBottom: function(){
