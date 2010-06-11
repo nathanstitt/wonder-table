@@ -44,7 +44,7 @@ WonderTable = Class.create(
 	this.scroller.observe('scroll', function(ev){
 	    if ( ( this.scrollBottom() / this.scroller.scrollHeight ) < 0.10 ){
 		if ( ! ev.target.fire('wonder-table:scroll-bottom', { 'table':this,'remaining' :  this.scrollBottom()  } ).stopped
-	    	     && this.options.get('url')
+	    	     && this.options.get('url') && this.options.get('progressive-loading')
 		     && ! this.all_loaded ){
 		    this.requestAdditionalRows();
 		}
@@ -55,9 +55,9 @@ WonderTable = Class.create(
 	    var tr = ev.target.up('tr');
 	    if ( this.selected ){
 		if ( tr == this.selected ){
-		    this.unSelect();
+		    this.unselect();
 		    return;
-		} else if ( ! this.unSelect() ){
+		} else if ( ! this.unselect() ){
 		    return;
 		}
 	    }
@@ -111,7 +111,7 @@ WonderTable = Class.create(
 	this.body.select('td.col-'+index).each(function(el){ ret += sorter.normal(el.innerHTML); });
 	return ret;
     },
-    unSelect:function(){
+    unselect:function(){
 	if ( ! this.selected ){
 	    return false;
 	}
@@ -236,8 +236,12 @@ WonderTable = Class.create(
 	return row;
     },
 
-    prependRow: function(){
-	return $( this.body.insertRow( 0 ) );
+    prependRow: function( data ){
+	var row = $( this.body.insertRow( 0 ) );
+	row.update( this.htmlForRow( data ) );
+	row.writeAttribute( this.rowAttributes(data) );
+	this.rows.set( data[ this.id_column ], data );
+	return row;
     },
 
     numRows: function(){
@@ -282,6 +286,7 @@ WonderTable = Class.create(
 	    div.children[i].remove();
 	}
 	div.children[ this.num_columns-1 ].addClassName('last');
+
     },
 
     setHeader: function( cols ){
@@ -315,7 +320,9 @@ WonderTable = Class.create(
     },
 
     rowAttributes:function(row){
-	return 'recid="' + row[ this.id_column ] + '"';
+	return {
+	    'recid': row[ this.id_column ]
+	};
     },
 
     appendRows:function(rows){
@@ -326,8 +333,15 @@ WonderTable = Class.create(
 	var len = rows.length;
 	for ( var y = 0; y < len; y++ ) {
 	    this.rows.set( rows[y][ this.id_column ], rows[y] );
-	    html.push( '<tr ' );
-	    html.push( this.rowAttributes( rows[y] ) );
+	    html.push( '<tr' );
+	    var attribs = this.rowAttributes( rows[y] );
+	    for ( key in attribs ){
+		html.push( ' ' );
+		html.push( key );
+		html.push( '="' );
+		html.push( attribs[ key ] );
+		html.push( '"' );
+	    }
 	    html.push( '>' );
 	    html.push( this.htmlForRow( rows[y] ) );
 	    html.push('</tr>');
@@ -387,9 +401,11 @@ WonderTable = Class.create(
 	var col = 0;
 	for ( ; col<this.num_columns; col++ ){
  	    layout = row.cells[ col ].getLayout();
-	    var style = { 'left': ( col ?  layout.get('left')-3 : 0 ) +'px' };
+	    var style = { 'left': ( col ?  layout.get('left')-1 : 0 ) +'px' };
 	    if ( col < this.num_columns-1 ){
 		style[ 'width' ] = ( ( ( col ? 0 : layout.get('left') ) + layout.get('margin-box-width' ) - (padding*2) )  )+ 'px';
+
+//		style[ 'width' ] = ( ( ( col ? 0 : layout.get('left') ) + layout.get('margin-box-width' ) - (padding*2) ) - 1 )+ 'px';
 		style[ 'paddingLeft']  = padding + 'px';
 		style[ 'paddingRight'] = padding + 'px';
 	    }
