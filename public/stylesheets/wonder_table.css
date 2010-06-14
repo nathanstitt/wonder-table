@@ -33,7 +33,7 @@ div.wonder div.header, div.wonder div.footer {
     height: 32px;
 }
 
-div.wonder div.header div, div.wonder div.footer div{
+div.wonder div.header div.th, div.wonder div.footer div.th{
     height: 25px;
     overflow: hidden;
     border: 1px solid #999;

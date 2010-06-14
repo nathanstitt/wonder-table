@@ -83,7 +83,7 @@ WonderTable = Class.create(
 	    this.footer.hide();
 	}
 
-	this.footer.on('click', 'div', function(ev){
+	this.footer.on('click', 'div.th', function(ev){
 		var index = this.footer.childElements().indexOf( ev.target );
 			   if ( ! ev.target.fire('wonder-table:footer-clicked', { 'table': this,
 			       columnIndex: index } ).stopped && this.options.get('sort') ){
@@ -91,7 +91,7 @@ WonderTable = Class.create(
 		}
 	}.bind(this) );
 
-	this.header.on('click', 'div', function(ev){
+	this.header.on('click', 'div.th', function(ev){
 		var index = this.header.childElements().indexOf( ev.target );
 			   if ( ! ev.target.fire('wonder-table:header-clicked', { 'table':this,
 			       columnIndex: index } ).stopped && this.options.get('sort') ){
@@ -277,7 +277,7 @@ WonderTable = Class.create(
 		cell.update( cols[i] );
 		div.appendChild( cell );
 	    }
-	    cell.className = 'col-'+i;
+	    cell.className = 'th col-'+i;
 	    if ( this.options.get('no_sort').include(i) ){
 		cell.addClassName( 'nosort' );
 	    }
@@ -379,11 +379,13 @@ WonderTable = Class.create(
 
     afterUpdate:function(){
 	var height = ( this.numRows() <= 10 ) ? ( this.body.rows.length * 30 ) : 300;
-	this.scroller.setStyle({'height': (height+65) + 'px'});
+	this.scroller.setStyle({  'height': (height+65) + 'px' } );
+
 	if ( this.sorted_by ){
 	    this.sorted_by.removeClassName( 'sorted').removeClassName('asc').removeClassName('desc');
 	    this.sorted_by = null;
 	}
+
 	this.updateLabelWidths();
 	this.scroller.fire('wonder-table:after-update',{'table': this } );
     },
