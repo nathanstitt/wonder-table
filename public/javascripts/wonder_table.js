@@ -45,7 +45,7 @@ WonderTable = Class.create(
 	    if ( ( this.scrollBottom() / this.scroller.scrollHeight ) < 0.10 ){
 		if ( ! ev.target.fire('wonder-table:scroll-bottom', { 'table':this,'remaining' :  this.scrollBottom()  } ).stopped
 	    	     && this.options.get('url') && this.options.get('progressive-loading')
-		     && ! this.all_loaded ){
+		     && ! this.fully_loaded ){
 		    this.requestAdditionalRows();
 		}
 	    }
@@ -220,7 +220,7 @@ WonderTable = Class.create(
 	if ( resp.responseJSON && resp.responseJSON.rows && resp.responseJSON.rows.length ){
 	    this.appendRows( resp.responseJSON.rows );
 	} else {
-	    this.all_loaded=true;
+	    this.fully_loaded=true;
 	}
 	this.afterLoading();
     },
