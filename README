@@ -1,0 +1,22 @@
+Wonder Table 
+
+This is the result of my search for a reliable, cross-browser html table which would have a fixed header and scrolling body. I also wanted it to sort by clicking column headings like TableKit and allow for efficient incremental loading via ajax.
+
+Google reveals that there are several implementations but I found them all lacking in one area or another.  
+
+The "Rico Live Grid":http://openrico.org/ seemed the closest to what I wanted but really didn't want to pull in an entire framework just for the grid.  I did end up using it for awhile but got frustrated by how they implemented the grid, which made it very difficult to select a row.
+
+I finally gave up and wrote my own, which I dubbed wonder-table.
+
+Features are:
+ * CSS class driven, does not use element id, allowing multiple tables to co-exist on a page.
+ * Fires custom prototype actions for just about all user interactions, most of which can be canceled.
+ * Can load both initial rows via ajax, or  request additional rows when scrolling reaches bottom 10% of table.
+ * Columns are sortable by clicking headers
+ * Rows are click-able with css highlighting and cancel-able via event.stop()
+ * Rows can be added/removed dynamically
+
+TODO
+ * More documentation
+ * COLSPAN emulation for headers & footers
+ * Perhaps support inline editing
