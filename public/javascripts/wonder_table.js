@@ -1,3 +1,11 @@
+/*!
+ *  WonderTable
+ *  (c) 2010 Nathan Stitt  http://nathan.stitt.org/
+ *
+ *  wondertable is freely distributable under the terms of the GPL version 3.0
+ *  http://www.gnu.org/licenses/gpl-3.0.txt
+ *----------------------------------------------------------------------------------*/
+
 WonderTable = Class.create(
 {
 
@@ -94,7 +102,9 @@ WonderTable = Class.create(
 	this.header.on('click', 'div.th', function(ev){
 		var index = this.header.childElements().indexOf( ev.target );
 			   if ( ! ev.target.fire('wonder-table:header-clicked', { 'table':this,
-			       columnIndex: index } ).stopped && this.options.get('sort') ){
+										  columnIndex: index,
+										  asc: ev.target.hasClassName('asc')
+										} ).stopped && this.options.get('sort') ){
 		    this.sortByColumn( index, ! ev.target.hasClassName('asc') );
 		}
 	}.bind(this) );
